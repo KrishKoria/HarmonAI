@@ -38,7 +38,7 @@ class GenerateMusicResponse(BaseModel):
 class MusicGenServer:
     @modal.enter()
     def load_model(self):
-        from acestep.pipeline.ace_step import ACEStepPipeline
+        from acestep.pipeline_ace_step import ACEStepPipeline
         from transformers import AutoTokenizer, AutoModelForCausalLM
         from diffusers import AutoPipelineForText2Image
         import torch
@@ -67,14 +67,24 @@ class MusicGenServer:
     @modal.fastapi_endpoint(method="POST")
     def generate(self) -> GenerateMusicResponse:
         output_dir = "/tmp/output"
-        os.mkdir(output_dir, exist_ok=True)
+        os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, f"{uuid.uuid4()}.wav")
         self.music_model(
-            prompt="funk, pop, soul, rock, melodic, guitar, drums, bass, keyboard, percussion, 105 BPM, energetic, upbeat, groovy, vibrant, dynamic",
-            lyrics="[verse]\nNeon lights they flicker bright\nCity hums in dead of night\nRhythms pulse through concrete veins\nLost in echoes of refrains\n\n[verse]\nBassline groovin' in my chest\nHeartbeats match the city's zest\nElectric whispers fill the air\nSynthesized dreams everywhere\n\n[chorus]\nTurn it up and let it flow\nFeel the fire let it grow\nIn this rhythm we belong\nHear the night sing out our song\n\n[verse]\nGuitar strings they start to weep\nWake the soul from silent sleep\nEvery note a story told\nIn this night we’re bold and gold\n\n[bridge]\nVoices blend in harmony\nLost in pure cacophony\nTimeless echoes timeless cries\nSoulful shouts beneath the skies\n\n[verse]\nKeyboard dances on the keys\nMelodies on evening breeze\nCatch the tune and hold it tight\nIn this moment we take flight",
-            audio_duration=180,
-            infer_step=60,
-            guidance_scale=15,
+            prompt= "electronic rap",
+            lyrics= "[verse]\nWaves on the bass, pulsing in the speakers,\nTurn the dial up, we chasing six-figure features,\nGrinding on the beats, codes in the creases,\nDigital hustler, midnight in sneakers.\n\n[chorus]\nElectro vibes, hearts beat with the hum,\nUrban legends ride, we ain't ever numb,\nCircuits sparking live, tapping on the drum,\nLiving on the edge, never succumb.\n\n[verse]\nSynthesizers blaze, city lights a glow,\nRhythm in the haze, moving with the flow,\nSwagger on stage, energy to blow,\nFrom the blocks to the booth, you already know.\n\n[bridge]\nNight's electric, streets full of dreams,\nBass hits collective, bursting at seams,\nHustle perspective, all in the schemes,\nRise and reflective, ain't no in-betweens.\n\n[verse]\nVibin' with the crew, sync in the wire,\nGot the dance moves, fire in the attire,\nRhythm and blues, soul's our supplier,\nRun the digital zoo, higher and higher.\n\n[chorus]\nElectro vibes, hearts beat with the hum,\nUrban legends ride, we ain't ever numb,\nCircuits sparking live, tapping on the drum,\nLiving on the edge, never succumb.",
+            audio_duration= 221.42547916666666,
+            infer_step= 60,
+            guidance_scale= 15,
+            scheduler_type= "euler",
+            cfg_type= "apg",
+            omega_scale= 10,
+            guidance_interval= 0.5,
+            guidance_interval_decay= 0,
+            min_guidance_scale= 3,
+            use_erg_tag= True,
+            use_erg_lyric= True,
+            use_erg_diffusion= True,
+            oss_steps= [],
             save_path=output_path,
         )
 

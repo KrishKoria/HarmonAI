@@ -8,7 +8,7 @@ import modal
 from pydantic import BaseModel
 import requests
 
-from backend.prompts import LYRICS_GENERATOR_PROMPT, PROMPT_GENERATOR_PROMPT
+from prompts import LYRICS_GENERATOR_PROMPT, PROMPT_GENERATOR_PROMPT
 from botocore.client import Config
 
 app = modal.App("HarmonAI")
@@ -29,11 +29,21 @@ hf_volume = modal.Volume.from_name("qwen-hf-cache", create_if_missing=True)
 secrets = modal.Secret.from_name("HarmonAI-AWS")
 
 class AudioGenerationBase(BaseModel):
-    audio_duration: float = 180.0
+    audio_duration: float = 180
     seed: int = -1
     guidance_scale: float = 15.0
     infer_step: int = 60
     instrumental: bool = False
+    scheduler_type: str = "euler"
+    cfg_type: str = "apg"
+    omega_scale: float = 10.0
+    guidance_interval: float = 0.5
+    guidance_interval_decay: float = 0.0
+    min_guidance_scale: float = 3.0
+    use_erg_tag: bool = True
+    use_erg_lyric: bool = True
+    use_erg_diffusion: bool = True
+    oss_steps: list = []
 
 
 class GenerateFromDescriptionRequest(AudioGenerationBase):
@@ -144,7 +154,17 @@ class MusicGenServer:
             infer_step: int,
             guidance_scale: float,
             seed: int,
-            description_for_categorization: str
+            description_for_categorization: str,
+            scheduler_type: str,
+            cfg_type: str,
+            omega_scale: float,
+            guidance_interval: float,
+            guidance_interval_decay: float,
+            min_guidance_scale: float,
+            use_erg_tag: bool,
+            use_erg_lyric: bool,
+            use_erg_diffusion: bool,
+            oss_steps: list
     ) -> GenerateMusicResponseS3:
         final_lyrics = "[instrumental]" if instrumental else lyrics
         print(f"Generated lyrics: \n{final_lyrics}")
@@ -164,7 +184,17 @@ class MusicGenServer:
             infer_step=infer_step,
             guidance_scale=guidance_scale,
             save_path=output_path,
-            manual_seeds=str(seed)
+            manual_seeds=str(seed),
+            scheduler_type=scheduler_type,
+            cfg_type=cfg_type,
+            omega_scale=omega_scale,
+            guidance_interval=guidance_interval,
+            guidance_interval_decay=guidance_interval_decay,
+            min_guidance_scale=min_guidance_scale,
+            use_erg_tag=use_erg_tag,
+            use_erg_lyric=use_erg_lyric,
+            use_erg_diffusion=use_erg_diffusion,
+            oss_steps=oss_steps
         )
 
         audio_s3_key = f"{uuid.uuid4()}.wav"
@@ -229,28 +259,92 @@ class MusicGenServer:
         lyrics = ""
         if not request.instrumental:
             lyrics = self.generate_lyrics(request.full_described_song)
-        
+        return self.generate_and_upload_to_s3(
+            prompt=prompt,
+            lyrics=lyrics,
+            description_for_categorization=request.full_described_song,
+            **request.model_dump(exclude={"full_described_song"})
+        )
 
-    
     @modal.fastapi_endpoint(method="POST")
     def generate_with_lyrics(self, request: GenerateWithCustomLyricsRequest) -> GenerateMusicResponseS3:
-        pass
-    
+        return self.generate_and_upload_to_s3(prompt=request.prompt, lyrics=request.lyrics,
+                                              description_for_categorization=request.prompt, **request.model_dump(exclude={"prompt", "lyrics"}))
+
     @modal.fastapi_endpoint(method="POST")
-    def generate_with_describelyrics(self, request: GenerateWithDescribedLyricsRequest) -> GenerateMusicResponseS3:
-        pass
+    def generate_with_described_lyrics(self, request: GenerateWithDescribedLyricsRequest) -> GenerateMusicResponseS3:
+        lyrics = ""
+        if not request.instrumental:
+            lyrics = self.generate_lyrics(request.described_lyrics)
+        return self.generate_and_upload_to_s3(prompt=request.prompt, lyrics=lyrics,
+                                              description_for_categorization=request.prompt, **request.model_dump(exclude={"described_lyrics", "prompt"}))
 
 @app.local_entrypoint()
 def main():
     server = MusicGenServer()
-    endpoint_url = server.generate.get_web_url()
+    # endpoint_url = server.generate_from_description.get_web_url()
+    # endpoint_url = server.generate_with_lyrics.get_web_url()
+    endpoint_url = server.generate_with_described_lyrics.get_web_url()
     print(f"Music generation endpoint URL: {endpoint_url}")
+
+    # request_data = GenerateFromDescriptionRequest(
+    #     full_described_song="A funky rave track with a disco vibe, featuring groovy basslines and upbeat rhythms.",
+    # )
+#     request_data = GenerateWithCustomLyricsRequest(
+#         prompt="A funky rave track with a disco vibe, featuring groovy basslines and upbeat rhythms.",
+#         lyrics="""
+# [verse]
+# Woke up in a city that's always alive
+# Neon lights they shimmer they thrive
+# Electric pulses beat they drive
+# My heart races just to survive
+
+# [chorus]
+# Oh electric dreams they keep me high
+# Through the wires I soar and fly
+# Midnight rhythms in the sky
+# Electric dreams together we’ll defy
+
+# [verse]
+# Lost in the labyrinth of screens
+# Virtual love or so it seems
+# In the night the city gleams
+# Digital faces haunted by memes
+
+# [chorus]
+# Oh electric dreams they keep me high
+# Through the wires I soar and fly
+# Midnight rhythms in the sky
+# Electric dreams together we’ll defy
+
+# [bridge]
+# Silent whispers in my ear
+# Pixelated love serene and clear
+# Through the chaos find you near
+# In electric dreams no fear
+
+# [verse]
+# Bound by circuits intertwined
+# Love like ours is hard to find
+# In this world we’re truly blind
+# But electric dreams free the mind
+# """,
+#     )
+    request_data = GenerateWithDescribedLyricsRequest(
+        prompt="rave, disco, funky, upbeat, groovy, 140BPM, dance, energetic",
+        described_lyrics="lyrics about a funky rave track with a disco vibe, featuring groovy basslines and upbeat rhythms.",
+    )
+
+    
+    payload = request_data.model_dump()
     response = requests.post(
         endpoint_url,
+        json=payload,
     )
     response.raise_for_status()
-    result = GenerateMusicResponse(**response.json())
-    audio_data = base64.b64decode(result.audio_data)
-    output_file = "output.wav"
-    with open(output_file, "wb") as f:
-        f.write(audio_data)
+    result = GenerateMusicResponseS3(**response.json())
+    # audio_data = base64.b64decode(result.audio_data)
+    # output_file = "output.wav"
+    # with open(output_file, "wb") as f:
+    #     f.write(audio_data)
+    print(f"Generated audio S3 key: {result.s3_key} {result.cover_image_s3_key} {result.categories}")

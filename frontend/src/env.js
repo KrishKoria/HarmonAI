@@ -7,10 +7,23 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    AWS_ACCESS_KEY_ID: z.string().min(1).max(128),
+    AWS_SECRET_ACCESS_KEY: z.string().min(1).max(128),
+    AWS_ENDPOINT_URL_S3: z.string(),
+    AWS_ENDPOINT_URL_IAM: z.string(),
+    AWS_REGION: z.string().min(1).max(64),
+    S3_BUCKET_NAME: z.string().min(1).max(64),
+    GENERATE_FROM_DESCRIPTION_API_URL: z.string(),
+    GENERATE_FROM_DESCRIBED_LYRICS_API_URL: z.string(),
+    GENERATE_FROM_LYRICS_API_URL: z.string(),
+    Modal_Key: z.string().min(1).max(128),
+    Modal_Secret: z.string().min(1).max(128),
+    BETTER_AUTH_SECRET: z.string(),
+    BETTER_AUTH_URL: z.string(),
   },
 
   /**
@@ -29,6 +42,22 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    Modal_Key: process.env.Modal_Key,
+    Modal_Secret: process.env.Modal_Secret,
+    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+    AWS_ENDPOINT_URL_S3: process.env.AWS_ENDPOINT_URL_S3,
+    AWS_ENDPOINT_URL_IAM: process.env.AWS_ENDPOINT_URL_IAM,
+    AWS_REGION: process.env.AWS_REGION,
+    S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
+    GENERATE_FROM_DESCRIPTION_API_URL:
+      process.env.GENERATE_FROM_DESCRIPTION_API_URL,
+    GENERATE_FROM_DESCRIBED_LYRICS_API_URL:
+      process.env.GENERATE_FROM_DESCRIBED_LYRICS_API_URL,
+    GENERATE_FROM_LYRICS_API_URL: process.env.GENERATE_FROM_LYRICS_API_URL,
+    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+    // If you have client-side
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

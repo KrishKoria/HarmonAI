@@ -220,7 +220,7 @@ class MusicGenServer:
             categories=categories
         )
     
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate(self) -> GenerateMusicResponse:
         output_dir = "/tmp/output"
         os.makedirs(output_dir, exist_ok=True)
@@ -253,7 +253,7 @@ class MusicGenServer:
 
         return GenerateMusicResponse(audio_data=audio_b64)
     
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate_from_description(self, request: GenerateFromDescriptionRequest) -> GenerateMusicResponseS3:
         prompt = self.generate_prompt(request.full_described_song)
         lyrics = ""
@@ -266,12 +266,12 @@ class MusicGenServer:
             **request.model_dump(exclude={"full_described_song"})
         )
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate_with_lyrics(self, request: GenerateWithCustomLyricsRequest) -> GenerateMusicResponseS3:
         return self.generate_and_upload_to_s3(prompt=request.prompt, lyrics=request.lyrics,
                                               description_for_categorization=request.prompt, **request.model_dump(exclude={"prompt", "lyrics"}))
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate_with_described_lyrics(self, request: GenerateWithDescribedLyricsRequest) -> GenerateMusicResponseS3:
         lyrics = ""
         if not request.instrumental:

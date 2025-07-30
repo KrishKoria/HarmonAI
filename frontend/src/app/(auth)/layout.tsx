@@ -1,4 +1,5 @@
 import { Providers } from "@/components/providers";
+import { Toaster } from "@/components/ui/sonner";
 import "@/styles/globals.css";
 
 import { type Metadata } from "next";
@@ -21,7 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

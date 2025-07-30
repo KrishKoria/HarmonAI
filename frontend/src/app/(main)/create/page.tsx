@@ -1,4 +1,5 @@
 import { SongPanel } from "@/components/create/song-panel";
+import TrackListFetcher from "@/components/create/tracks-fetcher";
 import { auth } from "@/lib/auth";
 import { Loader2 } from "lucide-react";
 import { headers } from "next/headers";
@@ -24,7 +25,7 @@ export default async function Page() {
           </div>
         }
       >
-        {/* <TrackListFetcher /> */}
+        <TrackListFetcher />
       </Suspense>
     </div>
   );

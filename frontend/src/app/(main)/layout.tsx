@@ -15,7 +15,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 export const metadata: Metadata = {
-  title: "HarmonAI",
+  title: "HarmonyAI",
   description: "A platform for Composing and generating AI Music",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };

@@ -1,3 +1,4 @@
+import CreateSong from "@/components/create";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -15,7 +16,7 @@ export default async function HomePage() {
       <p className="text-lg">
         A platform for Composing and generating AI Music
       </p>
-      dashboard
+      <CreateSong />
     </main>
   );
 }

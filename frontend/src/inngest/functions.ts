@@ -115,10 +115,11 @@ export const generateSong = inngest.createFunction(
         body: JSON.stringify(body),
         headers: {
           "Content-Type": "application/json",
-          "Modal-Key": env.Modal_Key,
-          "Modal-Secret": env.Modal_Secret,
+          "Modal-Key": env.MODAL_KEY as string,
+          "Modal-Secret": env.MODAL_SECRET as string,
         },
       });
+      console.log("Response", response);
       await step.run("update-song-result", async () => {
         const responseData = response.ok
           ? ((await response.json()) as {

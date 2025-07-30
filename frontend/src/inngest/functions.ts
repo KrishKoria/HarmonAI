@@ -90,6 +90,11 @@ export const generateSong = inngest.createFunction(
             prompt: song.prompt,
           };
         }
+        if (!endpoint) {
+          throw new Error(
+            "No valid endpoint for song generation. Please ensure all required fields are filled.",
+          );
+        }
         return {
           userId: song.user.id,
           credits: song.user.credits,
@@ -119,7 +124,6 @@ export const generateSong = inngest.createFunction(
           "Modal-Secret": env.MODAL_SECRET,
         },
       });
-      console.log("Response", response);
       await step.run("update-song-result", async () => {
         const responseData = response.ok
           ? ((await response.json()) as {

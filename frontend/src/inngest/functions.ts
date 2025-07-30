@@ -115,8 +115,8 @@ export const generateSong = inngest.createFunction(
         body: JSON.stringify(body),
         headers: {
           "Content-Type": "application/json",
-          "Modal-Key": env.MODAL_KEY as string,
-          "Modal-Secret": env.MODAL_SECRET as string,
+          "Modal-Key": env.MODAL_KEY,
+          "Modal-Secret": env.MODAL_SECRET,
         },
       });
       console.log("Response", response);

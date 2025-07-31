@@ -27,6 +27,7 @@ import Image from "next/image";
 import { getPlayUrl, renameSong, setPublishedStatus } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import { RenameDialog } from "./rename-dialog";
+import { usePlayerStore } from "@/store/usePlayer";
 
 export interface Track {
   id: string;
@@ -49,6 +50,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null);
   const [trackToRename, setTrackToRename] = useState<Track | null>(null);
+  const setTrack = usePlayerStore((state) => state.setTrack);
   const router = useRouter();
 
   const handleTrackSelect = async (track: Track) => {
@@ -56,6 +58,14 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
     setLoadingTrackId(track.id);
     const playUrl = await getPlayUrl(track.id);
     setLoadingTrackId(null);
+    setTrack({
+      currentTrackId: track.id,
+      title: track.title,
+      url: playUrl,
+      artwork: track.thumbnailUrl,
+      prompt: track.prompt,
+      createdBy: track.createdByUserName,
+    });
   };
 
   const handleRefresh = async () => {
@@ -177,6 +187,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
                             src={track.thumbnailUrl}
                             alt={track.title ?? "Track artwork"}
                             fill
+                            priority
                           />
                         ) : (
                           <div className="bg-muted flex h-full w-full items-center justify-center">

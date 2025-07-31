@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import DashboardBreadcrumb from "@/components/dashboardBreadcrumb";
 import { Providers, ThemeProvider } from "@/components/providers";
+import SoundBar from "@/components/sound-bar";
 import { ModeToggle } from "@/components/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -53,6 +54,7 @@ export default function RootLayout({
                   <ModeToggle />
                 </header>
                 <main className="flex-1 overflow-y-auto">{children}</main>
+                <SoundBar />
               </SidebarInset>
             </SidebarProvider>
             <Toaster />

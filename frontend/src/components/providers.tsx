@@ -17,6 +17,9 @@ export function Providers({ children }: { children: ReactNode }) {
       authClient={authClient}
       navigate={router.push}
       replace={router.replace}
+      social={{
+        providers: ["github"],
+      }}
       onSessionChange={() => {
         router.refresh();
       }}

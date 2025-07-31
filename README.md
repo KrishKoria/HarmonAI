@@ -24,7 +24,7 @@ HarmonyAI is an AI-powered music generation platform that enables users to creat
 - **User Authentication:** Secure login and user management with Better Auth UI and Polar SDK.
 - **Credits & Upgrades:** Track usage credits and access upgrade options.
 - **Responsive UI:** Modern, mobile-friendly interface built with Next.js, React, Radix UI, and Tailwind CSS.
-- **Cloud Storage:** Generated audio and cover art are stored on AWS S3.
+- **Cloud Storage:** Generated audio and cover art are stored on Tigris.
 
 ---
 

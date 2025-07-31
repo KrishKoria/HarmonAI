@@ -19,7 +19,7 @@ export function AuthView({ pathname }: { pathname: string }) {
           Back
         </Button>
       )}
-      <AuthCard pathname={pathname} />
+      <AuthCard socialLayout="auto" pathname={pathname} />
     </main>
   );
 }

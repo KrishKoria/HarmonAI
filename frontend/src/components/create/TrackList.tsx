@@ -24,8 +24,9 @@ import {
 } from "../ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { getPlayUrl, setPublishedStatus } from "@/lib/actions";
+import { getPlayUrl, renameSong, setPublishedStatus } from "@/lib/actions";
 import { cn } from "@/lib/utils";
+import { RenameDialog } from "./rename-dialog";
 
 export interface Track {
   id: string;
@@ -267,6 +268,14 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
           )}
         </div>
       </div>
+
+      {trackToRename && (
+        <RenameDialog
+          track={trackToRename}
+          onClose={() => setTrackToRename(null)}
+          onRename={(trackId, newTitle) => renameSong(trackId, newTitle)}
+        />
+      )}
     </div>
   );
 }

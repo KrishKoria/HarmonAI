@@ -24,6 +24,8 @@ export const env = createEnv({
     MODAL_SECRET: z.string().min(1).max(128),
     BETTER_AUTH_SECRET: z.string(),
     BETTER_AUTH_URL: z.string(),
+    POLAR_ACCESS_TOKEN: z.string(),
+    POLAR_WEBHOOK_SECRET: z.string(),
   },
 
   /**
@@ -57,6 +59,8 @@ export const env = createEnv({
     GENERATE_FROM_LYRICS_API_URL: process.env.GENERATE_FROM_LYRICS_API_URL,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+    POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
+    POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
     // If you have client-side
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
